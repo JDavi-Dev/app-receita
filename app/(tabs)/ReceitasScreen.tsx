@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet, ScrollView } from 'react-native';
 import ReceitaItem from '@/components/receita/ReceitaItem';
-import ModalNovaReceita from '@/components/modal/ModalNovaReceita';
+import ModalNovaReceita from '@/components/modals/ModalNovaReceita';
 import { Receita } from '@/interfaces/Receita';
 
 function ReceitasScreen() {
