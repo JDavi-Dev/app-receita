@@ -4,12 +4,12 @@ import { Receita } from "@/interfaces/Receita";
 
 interface ReceitaProps {
   receita: Receita;
-  onEdit: () => void;
+  onPress: () => void;
 }
 
-function ReceitaItem({ receita, onEdit, }: ReceitaProps) {
+function ReceitaItem({ receita, onPress, }: ReceitaProps) {
   return (
-    <TouchableOpacity style={styles.receitaItem} onPress={onEdit}>
+    <TouchableOpacity style={styles.receitaItem} onPress={onPress}>
       <Text style={styles.receitaNome}>{receita.nome}</Text>
       <Text style={styles.camposReceita}>Tempo de Preparo: {receita.tempoPreparo}</Text>
       <Text style={styles.camposReceita}>Porções: {receita.porcoes}</Text>

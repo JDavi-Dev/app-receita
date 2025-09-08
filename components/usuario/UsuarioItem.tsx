@@ -1,17 +1,15 @@
 import React from "react";
 import { Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Usuario } from "@/interfaces/Usuario";
-import { Ionicons } from "@expo/vector-icons";
 
 interface UsuarioProps {
   usuario: Usuario;
-  onEdit: () => void;
-  // onDelete: () => void;
+  onPress: () => void;
 }
 
-function UsuarioItem({ usuario, onEdit, }: UsuarioProps) {
+function UsuarioItem({ usuario, onPress, }: UsuarioProps) {
   return (
-    <TouchableOpacity style={styles.usuarioItem} onPress={onEdit}>
+    <TouchableOpacity style={styles.usuarioItem} onPress={onPress}>
       <Text style={styles.camposUsuario}>Email: {usuario.email}</Text>
       <Text style={styles.camposUsuario}>Senha: {usuario.senha}</Text>
     </TouchableOpacity>

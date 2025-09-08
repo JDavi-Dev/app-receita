@@ -4,12 +4,12 @@ import { Ingrediente } from "@/interfaces/Ingrediente";
 
 interface IngredienteProps {
   ingrediente: Ingrediente;
-  onEdit: () => void;
+  onPress: () => void;
 }
 
-function IngredienteItem({ ingrediente, onEdit, }: IngredienteProps) {
+function IngredienteItem({ ingrediente, onPress, }: IngredienteProps) {
   return (
-    <TouchableOpacity style={styles.ingredienteItem} onPress={onEdit}>
+    <TouchableOpacity style={styles.ingredienteItem} onPress={onPress}>
       <Text style={styles.ingredienteNome}>{ingrediente.nome}</Text>
       <Text style={styles.camposIngrediente}>
         Quantidade: {ingrediente.quantidade}
