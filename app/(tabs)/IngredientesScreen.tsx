@@ -5,13 +5,13 @@ import {
   Button,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
 import IngredienteItem from "@/components/ingrediente/IngredienteItem";
 import ModalNovoIngrediente from "@/components/modals/ModalNovoIngrediente";
 import { Ingrediente } from "@/interfaces/Ingrediente";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 
 function IngredientesScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -25,7 +25,7 @@ function IngredientesScreen() {
 
   const [ingredientes, setIngredientes] = useState<Ingrediente[]>([]);
   const [location, setLocation] = useState({});
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function getData() {
@@ -40,10 +40,9 @@ function IngredientesScreen() {
 
   useEffect(() => {
     (async () => {
-
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to acess location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to acess location was denied");
         return;
       }
 
@@ -62,21 +61,6 @@ function IngredientesScreen() {
   const adicionarIngrediente = async () => {
     const { id, ...ingredienteSemId } = novoIngrediente;
     let updatedIngredientes;
-
-    // if (id) {
-    //   setIngredientes(
-    //     ingredientes.map((ingrediente) =>
-    //       ingrediente.id === id
-    //         ? { ...ingrediente, ...ingredienteSemId }
-    //         : ingrediente
-    //     )
-    //   );
-    // } else {
-    //   setIngredientes([
-    //     ...ingredientes,
-    //     { id: Math.random().toString(), ...ingredienteSemId },
-    //   ]);
-    // }
 
     if (id) {
       updatedIngredientes = ingredientes.map((ingrediente) =>
@@ -115,6 +99,7 @@ function IngredientesScreen() {
     setModalVisible(true);
   };
 
+  
   const fecharModal = () => {
     setModalVisible(false);
     // Limpa os campos da nova receita ao fechar o modal
@@ -128,43 +113,31 @@ function IngredientesScreen() {
   };
 
   const deletarIngrediente = (id: string) => {
-    /* Para funciona na web descomente a 1º linha desse bloco e comente todo Alert */
 
     const updatedIngredientes = ingredientes.filter(
       (ingrediente) => ingrediente.id !== id
-    );
-
-    // setIngredientes(
-    //   ingredientes.filter((ingrediente) => ingrediente.id !== id)
-    // );
+    ); 
 
     setIngredientes(updatedIngredientes);
-
+    
     AsyncStorage.setItem(
       "@ReceitasApp:ingredientes",
       JSON.stringify(updatedIngredientes)
     );
-    // Alert.alert(
-    //   "Deletar Ingrediente",
-    //   "Tem certeza que deseja deletar este ingrediente?",
-    //   [
-    //     { text: "Cancelar", style: "cancel" },
-    //     {
-    //       text: "Deletar",
-    //       onPress: () =>
-    //         setIngredientes(
-    //           ingredientes.filter((ingrediente) => ingrediente.id !== id)
-    //         ),
-    //     },
-    //   ]
-    // );
   };
-
+  
   const deletarIngredienteModal = () => {
     if (novoIngrediente.id) {
       deletarIngrediente(novoIngrediente.id);
     }
     fecharModal();
+  };
+  
+  const navigateToDetails = (selectedIngrediente: Ingrediente) => {
+    router.push({
+      pathname: "/Screens/IngredienteDetailScreen",
+      params: { ingredienteId: selectedIngrediente.id },
+    });
   };
 
   return (
@@ -177,12 +150,12 @@ function IngredientesScreen() {
       />
 
       <ScrollView>
+
         {ingredientes.map((item) => (
           <IngredienteItem
             key={item.id}
             ingrediente={item}
-            onEdit={() => editarIngrediente(item)}
-            // onDelete={() => deletarIngrediente(item.id)}
+            onPress={() => navigateToDetails(item)}
           />
         ))}
       </ScrollView>

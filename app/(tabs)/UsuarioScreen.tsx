@@ -5,30 +5,30 @@ import {
   Button,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
 import UsuarioItem from "@/components/usuario/UsuarioItem";
 import ModalNovoUsuario from "@/components/modals/ModalNovoUsuario";
 import { Usuario } from "@/interfaces/Usuario";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 
 function UsuarioScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [novoUsuario, setNovoUsuario] = useState<Usuario>({
     id: "",
     email: "",
-    senha: ""
+    senha: "",
   });
 
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [location, setLocation] = useState({});
-  const [errorMsg, setErrorMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function getData() {
       try {
-        const data = await AsyncStorage.getItem("@UsuariosApp:usuarios");
+        const data = await AsyncStorage.getItem("@ReceitasApp:usuarios");
         const usuariosData = data != null ? JSON.parse(data) : [];
         setUsuarios(usuariosData);
       } catch (e) {}
@@ -38,10 +38,9 @@ function UsuarioScreen() {
 
   useEffect(() => {
     (async () => {
-
       let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setErrorMsg('Permission to acess location was denied');
+      if (status !== "granted") {
+        setErrorMsg("Permission to acess location was denied");
         return;
       }
 
@@ -63,9 +62,7 @@ function UsuarioScreen() {
 
     if (id) {
       updatedUsuario = usuarios.map((usuario) =>
-        usuario.id === id
-          ? { ...usuario, ...usuarioSemId }
-          : usuario
+        usuario.id === id ? { ...usuario, ...usuarioSemId } : usuario
       );
     } else {
       updatedUsuario = [
@@ -79,7 +76,7 @@ function UsuarioScreen() {
     // Armazena a nova lista de ingredientes no AsyncStorage
     try {
       await AsyncStorage.setItem(
-        "@UsuariosApp:usuarios",
+        "@ReceitasApp:usuarios",
         JSON.stringify(updatedUsuario)
       );
     } catch (e) {
@@ -98,28 +95,32 @@ function UsuarioScreen() {
     setModalVisible(true);
   };
 
+  const navigateToDetails = (selectedUsuario: Usuario) => {
+    router.push({
+      pathname: "/Screens/UsuarioDetailScreen",
+      params: { usuarioId: selectedUsuario.id },
+    });
+  };
+
   const fecharModal = () => {
     setModalVisible(false);
     // Limpa os campos da nova receita ao fechar o modal
     setNovoUsuario({
       id: "",
       email: "",
-      senha: ""
+      senha: "",
     });
   };
 
   const deletarIngrediente = (id: string) => {
     /* Para funciona na web descomente a 1º linha desse bloco e comente todo Alert */
 
-    const updatedUsuario = usuarios.filter(
-      (usuario) => usuario.id !== id
-    );
-
+    const updatedUsuario = usuarios.filter((usuario) => usuario.id !== id);
 
     setUsuarios(updatedUsuario);
 
     AsyncStorage.setItem(
-      "@UsuariosApp:usuarios",
+      "@ReceitasApp:usuarios",
       JSON.stringify(updatedUsuario)
     );
   };
@@ -145,7 +146,7 @@ function UsuarioScreen() {
           <UsuarioItem
             key={item.id}
             usuario={item}
-            onEdit={() => editarUsuario(item)}
+            onPress={() => navigateToDetails(item)}
           />
         ))}
       </ScrollView>

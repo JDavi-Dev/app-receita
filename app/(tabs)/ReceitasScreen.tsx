@@ -5,13 +5,13 @@ import {
   Button,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
 import ReceitaItem from "@/components/receita/ReceitaItem";
 import ModalNovaReceita from "@/components/modals/ModalNovaReceita";
 import { Receita } from "@/interfaces/Receita";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
+import { router } from "expo-router";
 
 function ReceitasScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -43,48 +43,31 @@ function ReceitasScreen() {
   }, []);
 
   useEffect(() => {
-      (async () => {
-  
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          setErrorMsg('Permission to acess location was denied');
-          return;
-        }
-  
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation(location);
-      })();
-    }, []);
-  
-    let text = "Waiting...";
-    if (errorMsg) {
-      text = errorMsg;
-    } else if (location) {
-      text = JSON.stringify(location);
-    }
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setErrorMsg("Permission to acess location was denied");
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = "Waiting...";
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
 
   const adicionarReceita = async () => {
     const { id, ...receitaSemId } = novaReceita;
     let updatedReceitas;
-
-    // if (id) {
-    //   setReceitas(
-    //     receitas.map((receita) =>
-    //       receita.id === id ? { ...receita, ...receitaSemId } : receita
-    //     )
-    //   );
-    // } else {
-    //   setReceitas([
-    //     ...receitas,
-    //     { id: Math.random().toString(), ...receitaSemId },
-    //   ]);
-    // }
-
     if (id) {
       updatedReceitas = receitas.map((receita) =>
-        receita.id === id
-          ? { ...receita, ...receitaSemId }
-          : receita
+        receita.id === id ? { ...receita, ...receitaSemId } : receita
       );
     } else {
       updatedReceitas = [
@@ -117,6 +100,13 @@ function ReceitasScreen() {
     setModalVisible(true);
   };
 
+  const navigateToDetails = (selectedReceita: Receita) => {
+    router.push({
+      pathname: "/Screens/ReceitaDetailScreen",
+      params: { receitaId: selectedReceita.id },
+    });
+  };
+
   const fecharModal = () => {
     setModalVisible(false);
     // Limpa os campos da nova receita ao fechar o modal
@@ -135,9 +125,7 @@ function ReceitasScreen() {
   const deletarReceita = (id: string) => {
     /* Para funciona na web descomente a 1º linha desse bloco e comente todo Alert */
 
-    const updatedReceitas = receitas.filter(
-      (receita) => receita.id !== id
-    );
+    const updatedReceitas = receitas.filter((receita) => receita.id !== id);
 
     setReceitas(updatedReceitas);
 
@@ -145,19 +133,6 @@ function ReceitasScreen() {
       "@ReceitasApp:receitas",
       JSON.stringify(updatedReceitas)
     );
-    // setReceitas(receitas.filter(receita => receita.id !== id))
-    // Alert.alert(
-    //   "Deletar Receita",
-    //   "Tem certeza que deseja deletar esta receita?",
-    //   [
-    //     { text: "Cancelar", style: "cancel" },
-    //     {
-    //       text: "Deletar",
-    //       onPress: () =>
-    //         setReceitas(receitas.filter((receita) => receita.id !== id)),
-    //     },
-    //   ]
-    // );
   };
 
   const deletarReceitaModal = () => {
@@ -181,8 +156,7 @@ function ReceitasScreen() {
           <ReceitaItem
             key={item.id}
             receita={item}
-            onEdit={() => editarReceita(item)}
-            // onDelete={() => deletarReceita(item.id)}
+            onPress={() => navigateToDetails(item)}
           />
         ))}
       </ScrollView>
