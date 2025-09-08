@@ -8,10 +8,11 @@ interface ModalNovoIngredienteProps {
   ingrediente: Ingrediente;
   onChange: (campo: string, valor: string) => void;
   onSalvar: () => void;
+  onDelete: () => void;
   titulo: string
 }
 
-function ModalNovoIngrediente({ visible, onClose, ingrediente, onChange, onSalvar, titulo}: ModalNovoIngredienteProps) {
+function ModalNovoIngrediente({ visible, onClose, ingrediente, onChange, onSalvar, onDelete, titulo}: ModalNovoIngredienteProps) {
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalView}>
@@ -44,6 +45,8 @@ function ModalNovoIngrediente({ visible, onClose, ingrediente, onChange, onSalva
           <Button color="#edb410" title="Cancelar" onPress={onClose} />
           <View style={{ width: 10 }} />
           <Button color="#61eb2b" title="Salvar" onPress={onSalvar} />
+          <View style={{ width: 10 }} />
+          <Button color="#ed0d3e" title="Deletar" onPress={onDelete} />
         </View>
       </View>
     </Modal>

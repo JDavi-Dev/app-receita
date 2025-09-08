@@ -1,15 +1,13 @@
 import React from "react";
 import { Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Receita } from "@/interfaces/Receita";
-import { Ionicons } from "@expo/vector-icons";
 
 interface ReceitaProps {
   receita: Receita;
   onEdit: () => void;
-  onDelete: () => void;
 }
 
-function ReceitaItem({ receita, onEdit, onDelete }: ReceitaProps) {
+function ReceitaItem({ receita, onEdit, }: ReceitaProps) {
   return (
     <TouchableOpacity style={styles.receitaItem} onPress={onEdit}>
       <Text style={styles.receitaNome}>{receita.nome}</Text>
@@ -17,9 +15,6 @@ function ReceitaItem({ receita, onEdit, onDelete }: ReceitaProps) {
       <Text style={styles.camposReceita}>Porções: {receita.porcoes}</Text>
       <Text style={styles.camposReceita}>Dificuldade: {receita.dificuldade}</Text>
       <Text style={styles.camposReceita}>Categoria: {receita.categoria}</Text>
-      <TouchableOpacity onPress={onDelete}>
-        <Ionicons name="trash" style={styles.deleteIcon} size={34}/>
-      </TouchableOpacity>
     </TouchableOpacity>
   );
 }
@@ -51,15 +46,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 10,
     marginBottom: 4
-  },
-  deleteText: {
-    color: "red",
-    marginTop: 10,
-    fontWeight: "bold",
-  },
-  deleteIcon: {
-    color: "#ed0d3e",
-    marginTop: 5,
   },
 });
 
