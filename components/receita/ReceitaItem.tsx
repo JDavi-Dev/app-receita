@@ -1,24 +1,26 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Receita } from "@/interfaces/Receita";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ReceitaProps {
   receita: Receita;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-function ReceitaItem({ receita }: ReceitaProps) {
+function ReceitaItem({ receita, onEdit, onDelete }: ReceitaProps) {
   return (
-    <View style={styles.receitaItem}>
+    <TouchableOpacity style={styles.receitaItem} onPress={onEdit}>
       <Text style={styles.receitaNome}>{receita.nome}</Text>
-      <Text style={styles.camposReceita}>
-        Tempo de Preparo: {receita.tempoPreparo}
-      </Text>
+      <Text style={styles.camposReceita}>Tempo de Preparo: {receita.tempoPreparo}</Text>
       <Text style={styles.camposReceita}>Porções: {receita.porcoes}</Text>
-      <Text style={styles.camposReceita}>
-        Dificuldade: {receita.dificuldade}
-      </Text>
+      <Text style={styles.camposReceita}>Dificuldade: {receita.dificuldade}</Text>
       <Text style={styles.camposReceita}>Categoria: {receita.categoria}</Text>
-    </View>
+      <TouchableOpacity onPress={onDelete}>
+        <Ionicons name="trash" style={styles.deleteIcon} size={34}/>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
@@ -43,6 +45,21 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    marginBottom: 4
+  },
+  deleteText: {
+    color: "red",
+    marginTop: 10,
+    fontWeight: "bold",
+  },
+  deleteIcon: {
+    color: "#ed0d3e",
+    marginTop: 5,
   },
 });
 

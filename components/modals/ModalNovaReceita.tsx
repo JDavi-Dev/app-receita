@@ -8,13 +8,14 @@ interface ModalNovaReceitaProps {
   receita: Receita;
   onChange: (campo: string, valor: string) => void;
   onSalvar: () => void;
+  titulo: string
 }
 
-function ModalNovaReceita({ visible, onClose, receita, onChange, onSalvar,}: ModalNovaReceitaProps) {
+function ModalNovaReceita({ visible, onClose, receita, onChange, onSalvar, titulo}: ModalNovaReceitaProps) {
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
       <View style={styles.modalView}>
-        <Text style={styles.modalTitle}>Criar Nova Receita</Text>
+        <Text style={styles.modalTitle}>{titulo}</Text>
         <TextInput
           placeholder="Nome da Receita"
           value={receita.nome}
@@ -52,9 +53,9 @@ function ModalNovaReceita({ visible, onClose, receita, onChange, onSalvar,}: Mod
           style={styles.input}
         />
         <View style={styles.botoes}>
-          <Button title="Cancelar" onPress={onClose} />
+          <Button color="#edb410" title="Cancelar" onPress={onClose} />
           <View style={{ width: 10 }} />
-          <Button title="Salvar" onPress={onSalvar} />
+          <Button color="#61eb2b" title="Salvar" onPress={onSalvar}/>
         </View>
       </View>
     </Modal>

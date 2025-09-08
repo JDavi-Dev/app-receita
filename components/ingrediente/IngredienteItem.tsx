@@ -1,21 +1,27 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ingrediente } from "@/interfaces/Ingrediente";
+import { Ionicons } from "@expo/vector-icons";
 
 interface IngredienteProps {
   ingrediente: Ingrediente;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
-function IngredienteItem({ ingrediente }: IngredienteProps) {
+function IngredienteItem({ ingrediente, onEdit, onDelete }: IngredienteProps) {
   return (
-    <View style={styles.ingredienteItem}>
+    <TouchableOpacity style={styles.ingredienteItem} onPress={onEdit}>
       <Text style={styles.ingredienteNome}>{ingrediente.nome}</Text>
       <Text style={styles.camposIngrediente}>
         Quantidade: {ingrediente.quantidade}
       </Text>
       <Text style={styles.camposIngrediente}>Unidade de medida: {ingrediente.unidadeMedida}</Text>
       <Text style={styles.camposIngrediente}>Categoria: {ingrediente.categoria}</Text>
-    </View>
+      <TouchableOpacity onPress={onDelete}>
+        <Ionicons name="trash" style={styles.deleteIcon} size={34}/>
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 }
 
@@ -41,6 +47,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
   },
+  deleteIcon: {
+    color: "#ed0d3e",
+    marginTop: 5,
+  }
 });
 
 export default IngredienteItem;
