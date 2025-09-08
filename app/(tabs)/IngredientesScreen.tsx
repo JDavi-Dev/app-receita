@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
 import IngredienteItem from "@/components/ingrediente/IngredienteItem";
 import ModalNovoIngrediente from "@/components/modals/ModalNovoIngrediente";
 import { Ingrediente } from "@/interfaces/Ingrediente";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
 
 function IngredientesScreen() {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
@@ -21,40 +23,87 @@ function IngredientesScreen() {
     categoria: "",
   });
 
-  const [ingredientes, setIngredientes] = useState<Ingrediente[]>([
-    {
-      id: "1",
-      nome: "Tomate",
-      quantidade: "2",
-      unidadeMedida: "unidades",
-      categoria: "Hortaliças",
-    },
-    {
-      id: "2",
-      nome: "Creme de Leite",
-      quantidade: "300",
-      unidadeMedida: "ml",
-      categoria: "Laticínios",
-    },
-  ]);
+  const [ingredientes, setIngredientes] = useState<Ingrediente[]>([]);
+  const [location, setLocation] = useState({});
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const adicionarIngrediente = () => {
+  useEffect(() => {
+    async function getData() {
+      try {
+        const data = await AsyncStorage.getItem("@ReceitasApp:ingredientes");
+        const ingredientesData = data != null ? JSON.parse(data) : [];
+        setIngredientes(ingredientesData);
+      } catch (e) {}
+    }
+    getData();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to acess location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = "Waiting...";
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
+
+  const adicionarIngrediente = async () => {
     const { id, ...ingredienteSemId } = novoIngrediente;
+    let updatedIngredientes;
+
+    // if (id) {
+    //   setIngredientes(
+    //     ingredientes.map((ingrediente) =>
+    //       ingrediente.id === id
+    //         ? { ...ingrediente, ...ingredienteSemId }
+    //         : ingrediente
+    //     )
+    //   );
+    // } else {
+    //   setIngredientes([
+    //     ...ingredientes,
+    //     { id: Math.random().toString(), ...ingredienteSemId },
+    //   ]);
+    // }
+
     if (id) {
-      setIngredientes(
-        ingredientes.map((ingrediente) =>
-          ingrediente.id === id
-            ? { ...ingrediente, ...ingredienteSemId }
-            : ingrediente
-        )
+      updatedIngredientes = ingredientes.map((ingrediente) =>
+        ingrediente.id === id
+          ? { ...ingrediente, ...ingredienteSemId }
+          : ingrediente
       );
     } else {
-      setIngredientes([
+      updatedIngredientes = [
         ...ingredientes,
         { id: Math.random().toString(), ...ingredienteSemId },
-      ]);
+      ];
     }
-    fecharModal()
+
+    setIngredientes(updatedIngredientes);
+
+    // Armazena a nova lista de ingredientes no AsyncStorage
+    try {
+      await AsyncStorage.setItem(
+        "@ReceitasApp:ingredientes",
+        JSON.stringify(updatedIngredientes)
+      );
+    } catch (e) {
+      console.error("Erro ao armazenar ingredientes:", e);
+    }
+
+    fecharModal();
   };
 
   const atualizarCampo = (campo: string, valor: string) => {
@@ -81,25 +130,46 @@ function IngredientesScreen() {
   const deletarIngrediente = (id: string) => {
     /* Para funciona na web descomente a 1º linha desse bloco e comente todo Alert */
 
-    // setIngredientes(ingredientes.filter(ingrediente => ingrediente.id !== id))
-    Alert.alert(
-      "Deletar Ingrediente",
-      "Tem certeza que deseja deletar este ingrediente?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Deletar",
-          onPress: () =>
-            setIngredientes(
-              ingredientes.filter((ingrediente) => ingrediente.id !== id)
-            ),
-        },
-      ]
+    const updatedIngredientes = ingredientes.filter(
+      (ingrediente) => ingrediente.id !== id
     );
+
+    // setIngredientes(
+    //   ingredientes.filter((ingrediente) => ingrediente.id !== id)
+    // );
+
+    setIngredientes(updatedIngredientes);
+
+    AsyncStorage.setItem(
+      "@ReceitasApp:ingredientes",
+      JSON.stringify(updatedIngredientes)
+    );
+    // Alert.alert(
+    //   "Deletar Ingrediente",
+    //   "Tem certeza que deseja deletar este ingrediente?",
+    //   [
+    //     { text: "Cancelar", style: "cancel" },
+    //     {
+    //       text: "Deletar",
+    //       onPress: () =>
+    //         setIngredientes(
+    //           ingredientes.filter((ingrediente) => ingrediente.id !== id)
+    //         ),
+    //     },
+    //   ]
+    // );
+  };
+
+  const deletarIngredienteModal = () => {
+    if (novoIngrediente.id) {
+      deletarIngrediente(novoIngrediente.id);
+    }
+    fecharModal();
   };
 
   return (
     <View style={styles.container}>
+      <Text style={styles.textGPS}>{text}</Text>
       <Text style={styles.title}>Listagem de Ingredientes</Text>
       <Button
         title="Adicionar Novo Ingrediente"
@@ -112,7 +182,7 @@ function IngredientesScreen() {
             key={item.id}
             ingrediente={item}
             onEdit={() => editarIngrediente(item)}
-            onDelete={() => deletarIngrediente(item.id)}
+            // onDelete={() => deletarIngrediente(item.id)}
           />
         ))}
       </ScrollView>
@@ -123,7 +193,12 @@ function IngredientesScreen() {
         ingrediente={novoIngrediente}
         onChange={atualizarCampo}
         onSalvar={adicionarIngrediente}
-        titulo={novoIngrediente.id ? `Editar ${novoIngrediente.nome}` : "Criar Novo Ingrediente"}
+        onDelete={deletarIngredienteModal}
+        titulo={
+          novoIngrediente.id
+            ? `Editar ${novoIngrediente.nome}`
+            : "Criar Novo Ingrediente"
+        }
       />
     </View>
   );
@@ -135,6 +210,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
     backgroundColor: "#393340",
+  },
+  textGPS: {
+    color: "blue",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   title: {
     color: "white",
